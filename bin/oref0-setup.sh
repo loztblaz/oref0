@@ -294,7 +294,7 @@ function move_mmtune () {
 
 function install_or_upgrade_nodejs () {
     # install/upgrade to latest node 8 if neither node 8 nor node 10+ LTS are installed
-    if ! nodejs --version | grep -e 'v8\.' -e 'v1[02468]\.' >/dev/null; then
+    if ! node --version | grep -e 'v8\.' -e 'v1[02468]\.' >/dev/null; then
         echo Installing node 8
         # Use nodesource setup script to add nodesource repository to sources.list.d
         sudo bash -c "curl -sL https://deb.nodesource.com/setup_8.x | bash -" || die "Couldn't setup node 8"
@@ -314,17 +314,21 @@ function install_or_upgrade_nodejs () {
         echo "Your installed nodejs ($(node --version)) is very slow to start (took ${NODE_EXECUTION_TIME}s)"
         echo "This is a known problem with certain versions of Raspberry Pi OS."
 
-        if prompt_yn "Install a new nodejs version using nvm?" Y; then
-            echo "Installing nvm and using it to replace the system-provided nodejs"
-    
-            # Download nvm
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
-            # Run nvm, adding its aliases to this shell
-            source ~/.nvm/nvm.sh
-            # Use nvm to install nodejs
-            nvm install 10.24.1
-            # Symlink node into /usr/local/bin, where it will shadow /usr/bin/node
-            ln -s ~/.nvm/versions/node/v10.24.1/bin/node /usr/local/bin/node
+        if prompt_yn "Install a new nodejs version using n?" Y; then
+            if [[ ! $(command -v n)]]; then
+                echo "n already exists on the system, using it to install a new version of node..."
+                n 10
+            else
+                echo "Installing n and using it to replace the system-provided nodejs"
+                echo "Installing node via n..."
+                curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o n
+                # Install the latest version of node 10.x.x
+                sudo bash n 10
+                # Delete the local n binary used to boostrap the install
+                rm n
+                # Install n globally
+                sudo npm install -g n
+            fi
 
             NEW_NODE_EXECUTION_TIME="$(\time --format %e node -e 'true' 2>&1)"
             echo "New nodejs took ${NEW_NODE_EXECUTION_TIME}s to start"
