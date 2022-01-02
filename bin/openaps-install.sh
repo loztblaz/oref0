@@ -2,7 +2,7 @@
 set -e
 
 BRANCH=${1:-master}
-read -p "Enter your rig's new hostname (this will be your rig's "name" in the future, so make sure to write it down): " -r
+read -p "Enter your rig's new hostname (this will be your rig's \"name\" in the future, so make sure to write it down): " -r
 myrighostname=$REPLY
 echo $myrighostname > /etc/hostname
 sed -r -i"" "s/localhost( jubilinux)?$/localhost $myrighostname/" /etc/hosts
