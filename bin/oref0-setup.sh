@@ -315,7 +315,7 @@ function install_or_upgrade_nodejs () {
         echo "This is a known problem with certain versions of Raspberry Pi OS."
 
         if prompt_yn "Install a new nodejs version using n?" Y; then
-            if [[ ! $(command -v n)]]; then
+            if [[ ! $(command -v n) ]]; then
                 echo "n already exists on the system, using it to install a new version of node..."
                 n 10
             else
