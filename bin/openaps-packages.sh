@@ -41,6 +41,8 @@ if ! nodejs --version | grep -e 'v8\.' -e 'v1[02468]\.' &> /dev/null ; then
 		bash n 10
 		# Delete the local n binary used to boostrap the install
 		rm n
+      # Install n globally
+      sudo npm install -g n
    fi
    
 	# Upgrade to the latest supported version of npm for the current node version
