@@ -2,7 +2,7 @@
 set -e
 
 BRANCH=${1:-master}
-read -p "Enter your rig's new hostname (this will be your rig's "name" in the future, so make sure to write it down): " -r
+read -p "Enter your rig's new hostname (this will be your rig's \"name\" in the future, so make sure to write it down): " -r
 myrighostname=$REPLY
 echo $myrighostname > /etc/hostname
 sed -r -i"" "s/localhost( jubilinux)?$/localhost $myrighostname/" /etc/hosts
@@ -46,21 +46,14 @@ if cat /etc/os-release | grep 'PRETTY_NAME="Debian GNU/Linux 8 (jessie)"' &> /de
     echo "Jubilinux 0.2.0, based on Debian Jessie, is no longer receiving security or software updates!"
 fi
 
-#Workaround for Jubilinux to install nodejs/npm from nodesource
-if getent passwd edison &> /dev/null; then
-    #Use nodesource setup script to add nodesource repository to sources.list.d
-    curl -sL https://deb.nodesource.com/setup_8.x | bash -
-fi
-
-#dpkg -P nodejs nodejs-dev
 # TODO: remove the `-o Acquire::ForceIPv4=true` once Debian's mirrors work reliably over IPv6
 apt-get -o Acquire::ForceIPv4=true update && apt-get -o Acquire::ForceIPv4=true -y dist-upgrade && apt-get -o Acquire::ForceIPv4=true -y autoremove
 apt-get -o Acquire::ForceIPv4=true update && apt-get -o Acquire::ForceIPv4=true install -y sudo strace tcpdump screen acpid vim python-pip locate ntpdate ntp
-#check if edison user exists before trying to add it to groups
 
 grep "PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes" >>/etc/ssh/sshd_config
 
-if  getent passwd edison > /dev/null; then
+#check if edison user exists before trying to add it to groups
+if getent passwd edison > /dev/null; then
   echo "Adding edison to sudo users"
   adduser edison sudo
   echo "Adding edison to dialout users"

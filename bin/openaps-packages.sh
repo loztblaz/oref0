@@ -28,11 +28,25 @@ if ! nodejs --version | grep -e 'v8\.' -e 'v1[02468]\.' &> /dev/null ; then
      curl -sL https://deb.nodesource.com/setup_8.x | bash -
      sudo apt-get install -y nodejs=8.* || die "Couldn't install nodejs"
    else
-     sudo apt-get install -y nodejs npm || die "Couldn't install nodejs and npm"
+      # From package manager:
+      # sudo apt-get install -y nodejs npm || die "Couldn't install nodejs and npm"
+
+      # Raspbian Buster has (at the time of writing) npm 5.8 in the repo, which is not compatible with the repo nodejs version of 10.24
+      # An npm self-upgrade (as is attempted below) is successful (bringing npm to major verison 8), but between there and this script trying to `npm install -g json` npm has somehow reverted to the package manager version and become broken (any invocation of npm immediately crashes with a syntax error)
+      # At this point, the root cause is unclear and I don't want to deal with it, so I'm deferring to `n`
+      # `n` instead of `nvm` to avoid issues with nvm not being available to all users (see https://stackoverflow.com/questions/21215059/cant-use-nvm-from-root-or-sudo)
+      echo "Installing node via n..."
+      curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o n
+      # Install the latest version of node 10.x.x
+      bash n 10
+      # Delete the local n binary used to boostrap the install
+      rm n
+      # Install n globally
+      sudo npm install -g n
    fi
    
-   # Upgrade npm to the latest version using its self-updater
-   sudo npm install npm@latest -g || die "Couldn't update npm"
+   # Upgrade to the latest supported version of npm for the current node version
+   sudo npm upgrade -g npm|| die "Couldn't update npm"
 
    ## You may also need development tools to build native addons:
    ## sudo apt-get install gcc g++ make
